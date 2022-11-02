@@ -16,15 +16,23 @@
 // There are at least two ways to implement this that are both correct-- but
 // one is a lot shorter! Execute `rustlings hint errors2` for hints to both ways.
 
-// I AM NOT DONE
 
 use std::num::ParseIntError;
+// use std::num::IntErrorKind;
+// use IntErrorKind::InvalidDigit;
 
+// * [iterator - I keep getting ParseIntError { kind: InvalidDigit } in my Rust program and I have no idea why - Stack Overflow](https://stackoverflow.com/questions/61469078/i-keep-getting-parseinterror-kind-invaliddigit-in-my-rust-program-and-i-hav)
+// * [Rustlings errors2: Handling errors by unwrapping or early-returning with the \`?\` operator | egghead.io](https://egghead.io/lessons/rust-rustlings-errors2-handling-errors-by-unwrapping-or-early-returning-with-the-operator)
+// 不应该自己构造InvalidDigit来返回。直接用?操作符即可
 pub fn total_cost(item_quantity: &str) -> Result<i32, ParseIntError> {
     let processing_fee = 1;
     let cost_per_item = 5;
-    let qty = item_quantity.parse::<i32>();
-
+    // match item_quantity.parse::<i32>() {
+    //     Ok(qty) => Ok(qty * cost_per_item + processing_fee),
+    //     // Err(_) => Err(ParseIntError{kind: IntErrorKind::InvalidDigit}),
+    //     Err(_) => Err(ParseIntError{kind:InvalidDigit}),
+    // }
+    let qty = item_quantity.parse::<i32>()?;
     Ok(qty * cost_per_item + processing_fee)
 }
 
