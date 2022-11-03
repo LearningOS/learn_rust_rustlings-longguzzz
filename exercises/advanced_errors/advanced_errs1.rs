@@ -7,7 +7,6 @@
 // Make this code compile! Execute `rustlings hint advanced_errs1` for
 // hints :)
 
-// I AM NOT DONE
 
 use std::num::ParseIntError;
 use std::str::FromStr;
@@ -24,12 +23,30 @@ impl From<CreationError> for ParsePosNonzeroError {
     fn from(e: CreationError) -> Self {
         // TODO: complete this implementation so that the `?` operator will
         // work for `CreationError`
+        // Creation(e)
+        ParsePosNonzeroError::Creation(e)
     }
 }
 
 // TODO: implement another instance of the `From` trait here so that the
 // `?` operator will work in the other place in the `FromStr`
 // implementation below.
+
+// 实现 FromStr 给 PositiveNonzeroInteger 的话，
+// 需要考虑 ParsePosNonzeroError， 这是一个和类型的Err，有两种
+// 分别是Creation和ParseInt两类
+// Creation的错误来自PositiveNonzeroInteger::new，根据方法定义，错误类型是CreationError
+// ParseInt的错误来自s.parse()，类型是ParseIntError
+// 在这个基础上，ParsePosNonzeroError附加了自己的tag，但实现的时候还是写成
+// impl From<CreationError> for ParsePosNonzeroError 
+// impl From<ParseIntError> for ParsePosNonzeroError
+// 理清楚方法定义的类型之间的依赖关系，分清楚类型与实例的关系，之后就简单了
+
+impl From<ParseIntError> for ParsePosNonzeroError {
+    fn from(e: ParseIntError) -> Self {
+        ParsePosNonzeroError::ParseInt(e)
+    }
+}
 
 // Don't change anything below this line.
 

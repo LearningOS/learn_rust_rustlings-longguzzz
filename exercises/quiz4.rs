@@ -5,7 +5,15 @@
 
 // Write a macro that passes the quiz! No hints this time, you can do it!
 
-// I AM NOT DONE
+
+#[macro_export]
+macro_rules! my_macro {
+    ($s:expr) => {
+        // write!(String::new(),"Hello {}",$s)
+        format!("Hello {}",$s)
+    }
+}
+
 
 #[cfg(test)]
 mod tests {
