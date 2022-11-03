@@ -18,7 +18,6 @@
 // where the second TODO comment is. Try not to create any copies of the `numbers` Vec!
 // Execute `rustlings hint arc1` for hints :)
 
-// I AM NOT DONE
 
 #![forbid(unused_imports)] // Do not change this, (or the next) line.
 use std::sync::Arc;
@@ -26,11 +25,14 @@ use std::thread;
 
 fn main() {
     let numbers: Vec<_> = (0..100u32).collect();
-    let shared_numbers = // TODO
+    //* [【译】Arc 在 Rust 中是如何工作的 - Praying - 博客园](https://www.cnblogs.com/praying/p/14005356.html)
+    // 确保shared_numbers的所有引用都结束之前，它不会被丢弃
+    // 可以在（主）线程中引用shared_numbers，并且还可以在（子）线程被生成之后访问它的值。
+    let shared_numbers = Arc::new(numbers);// TODO
     let mut joinhandles = Vec::new();
 
     for offset in 0..8 {
-        let child_numbers = // TODO
+        let child_numbers = Arc::clone(&shared_numbers);// TODO
         joinhandles.push(thread::spawn(move || {
             let sum: u32 = child_numbers.iter().filter(|n| *n % 8 == offset).sum();
             println!("Sum of offset {} is {}", offset, sum);

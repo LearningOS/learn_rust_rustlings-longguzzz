@@ -10,20 +10,38 @@
 
 // Execute 'rustlings hint generics3' for hints!
 
-// I AM NOT DONE
 
-pub struct ReportCard {
-    pub grade: f32,
+use std::fmt;
+
+// pub struct ReportCard {
+//     pub grade: f32,
+//     pub student_name: String,
+//     pub student_age: u8,
+// }
+
+pub struct ReportCard<T> {
+    pub grade: T,
     pub student_name: String,
     pub student_age: u8,
 }
 
-impl ReportCard {
+// 正确的抽象方式不是插入判断语句
+// 而是通过trait实现多态
+impl<T: fmt::Display> ReportCard<T> {
     pub fn print(&self) -> String {
         format!("{} ({}) - achieved a grade of {}",
             &self.student_name, &self.student_age, &self.grade)
     }
 }
+
+// 有没有可能为部分字段实现trait，通过判断值的大小来划分等级？
+// ……这样的写法似乎变得更麻烦了，真的有变得更好吗？
+// impl fmt::Display for ReportCard::grade {
+//     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+//         write!(f, "A+")
+//     }
+// }
+
 
 #[cfg(test)]
 mod tests {
@@ -42,11 +60,14 @@ mod tests {
         );
     }
 
+    //* [Rustlings generics3: Constraining generics using traits | egghead.io](https://egghead.io/lessons/rust-rustlings-generics3-constraining-generics-using-traits)
+    // 答案需要修改测试用例，设置得不好
     #[test]
     fn generate_alphabetic_report_card() {
         // TODO: Make sure to change the grade here after you finish the exercise.
         let report_card = ReportCard {
-            grade: 2.1,
+            // grade: 2.1,
+            grade: "A+",
             student_name: "Gary Plotter".to_string(),
             student_age: 11,
         };

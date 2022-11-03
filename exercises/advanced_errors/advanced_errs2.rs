@@ -16,7 +16,6 @@
 // 4. Complete the partial implementation of `Display` for
 //    `ParseClimateError`.
 
-// I AM NOT DONE
 
 use std::error::Error;
 use std::fmt::{self, Display, Formatter};
@@ -47,6 +46,7 @@ impl From<ParseIntError> for ParseClimateError {
 impl From<ParseFloatError> for ParseClimateError {
     fn from(e: ParseFloatError) -> Self {
         // TODO: Complete this function
+        ParseClimateError::ParseFloat(e)
     }
 }
 
@@ -55,6 +55,7 @@ impl From<ParseFloatError> for ParseClimateError {
 
 // The `Display` trait allows for other code to obtain the error formatted
 // as a user-visible string.
+// 参考* [包裹错误 - 通过例子学 Rust 中文版](https://rustwiki.org/zh-CN/rust-by-example/error/multiple_error_types/wrap_error.html)
 impl Display for ParseClimateError {
     // TODO: Complete this function so that it produces the correct strings
     // for each error variant.
@@ -64,6 +65,49 @@ impl Display for ParseClimateError {
         match self {
             NoCity => write!(f, "no city name"),
             ParseFloat(e) => write!(f, "error parsing temperature: {}", e),
+
+            Empty => write!(f, "empty input"),
+            BadLen => write!(f, "incorrect number of fields"),
+            // 逆推
+            // fn test_parse_int_bad() {
+            //     let res = "Beijing,foo,15.0".parse::<Climate>();
+            //     assert!(matches!(res, Err(ParseClimateError::ParseInt(_))));
+            //     let err = res.unwrap_err();
+            //     if let ParseClimateError::ParseInt(ref inner) = err {
+            //         assert_eq!(
+            //             err.to_string(),
+            //             format!("error parsing year: {}", inner.to_string())
+            //         );
+            //     } else {
+            //         unreachable!();
+            //     };
+            // }
+            ParseInt(e) => write!(f, "error parsing year: {}", e)
+        }
+    }
+}
+// 参考* [包裹错误 - 通过例子学 Rust 中文版](https://rustwiki.org/zh-CN/rust-by-example/error/multiple_error_types/wrap_error.html)
+impl Error for ParseClimateError {
+    fn source(&self) -> Option<&(dyn Error + 'static)> {
+        match *self {
+            // 根据最后一个测试用例逆推
+            // fn test_downcast() {
+            //     let res = "São Paulo,-21,28.5".parse::<Climate>();
+            //     assert!(matches!(res, Err(ParseClimateError::ParseInt(_))));
+            //     let err = res.unwrap_err();
+            //     let inner: Option<&(dyn Error + 'static)> = err.source();
+            //     assert!(inner.is_some());
+            //     assert!(inner.unwrap().is::<ParseIntError>());
+            // }
+            // ParseClimateError::ParseInt(a) => Some(a),
+            // ParseClimateError::ParseFloat(a) => Some(a),
+            // ParseClimateError::a => Some(a), 这是错误写法……因为Empty这些标签并不像ParseIntError独立于ParseClimateError而存在
+            ParseClimateError::ParseInt(ref a) => Some(a),
+            ParseClimateError::ParseFloat(ref a) => Some(a),
+            // a => Some(a), //不行
+            ref a => Some(a),
+            // a @ ref _ => Some(a), //不行
+            // ref a @ _ => Some(a), //可以
         }
     }
 }
@@ -88,11 +132,19 @@ impl FromStr for Climate {
     // TODO: Complete this function by making it handle the missing error
     // cases.
     fn from_str(s: &str) -> Result<Self, Self::Err> {
+        // if s.len() == 0 {return ParseClimateError::Empty}
+        if s.len() == 0 {return Err(ParseClimateError::Empty)}
+
         let v: Vec<_> = s.split(',').collect();
         let (city, year, temp) = match &v[..] {
             [city, year, temp] => (city.to_string(), year, temp),
+            // 更简洁的写法
             _ => return Err(ParseClimateError::BadLen),
         };
+
+        // if city.len() == 0 {return ParseClimateError::NoCity}
+        if city.len() == 0 {return Err(ParseClimateError::NoCity)}
+
         let year: u32 = year.parse()?;
         let temp: f32 = temp.parse()?;
         Ok(Climate { city, year, temp })
